@@ -1,0 +1,56 @@
+{% extends "admin/projects/base.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  {{ media.css }}
+{% endblock %}
+
+{% block content %}
+  <div id="content-main" class="project-feature-admin">
+    <h1>{{ title }}</h1>
+
+    {% if feature_warning %}
+      <p class="project-feature-admin__warning" role="alert">{{ feature_warning }}</p>
+    {% endif %}
+
+    {% if feature_current_project %}
+      <p class="project-feature-admin__consequence">
+        {% translate "This will replace the current featured project on the homepage." %}
+      </p>
+    {% endif %}
+
+    <div class="project-feature-admin__comparison">
+      <section aria-labelledby="project-feature-current-title">
+        <h2 id="project-feature-current-title">{% translate "Current featured project" %}</h2>
+        {% if feature_current_project %}
+          <h3>{{ feature_current_project.title }}</h3>
+          {% if feature_current_cover_url %}
+            <img class="project-feature-admin__cover" src="{{ feature_current_cover_url }}" alt="{{ feature_current_project.title }}">
+          {% else %}
+            <p class="project-feature-admin__fallback">{% translate "No ready cover image." %}</p>
+          {% endif %}
+        {% else %}
+          <p class="project-feature-admin__fallback">{% translate "No project is currently featured." %}</p>
+        {% endif %}
+      </section>
+
+      <section aria-labelledby="project-feature-proposed-title">
+        <h2 id="project-feature-proposed-title">{% translate "Proposed featured project" %}</h2>
+        <h3>{{ feature_proposed_project.title }}</h3>
+        {% if feature_proposed_cover_url %}
+          <img class="project-feature-admin__cover" src="{{ feature_proposed_cover_url }}" alt="{{ feature_proposed_project.title }}">
+        {% else %}
+          <p class="project-feature-admin__fallback">{% translate "No ready cover image." %}</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <form method="post" action="{{ feature_url }}" class="project-feature-admin__actions">
+      {% csrf_token %}
+      <input type="hidden" name="expected_current_id" value="{{ feature_expected_current_id }}">
+      <button type="submit" class="default">{% translate "Confirm change" %}</button>
+      <a href="{{ feature_change_url }}">{% translate "Cancel" %}</a>
+    </form>
+  </div>
+{% endblock %}

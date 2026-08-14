@@ -1,0 +1,102 @@
+{% extends "admin/projects/base.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  {{ media.css }}
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  {{ media.js }}
+{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
+    &rsaquo; <a href="{{ project_changelist_url }}">{% translate "Projects" %}</a>
+    &rsaquo; {% translate "Reorder projects" %}
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div id="content-main" class="project-reorder-admin">
+    <h1>{{ title }}</h1>
+    <p class="project-reorder-admin__intro">
+      {% translate "Drag projects into position or use the Move up and Move down buttons, then save the complete order." %}
+    </p>
+
+    {% if reorder_error %}
+      <p class="project-reorder-admin__error" role="alert">{{ reorder_error }}</p>
+    {% endif %}
+
+    {% if projects %}
+      <form
+        method="post"
+        action="{{ project_reorder_url }}"
+        data-project-reorder-form
+        data-moved-announcement="{% translate 'Moved {title} to position {position}.' %}"
+      >
+        {% csrf_token %}
+        {% for project in projects %}
+          <input type="hidden" name="expected_project_id" value="{{ project.pk }}">
+        {% endfor %}
+
+        <ol class="project-reorder-admin__list" data-project-reorder-list>
+          {% for project in projects %}
+            <li class="project-reorder-admin__item" data-project-reorder-item>
+              <input type="hidden" name="project_id" value="{{ project.pk }}">
+              <span class="project-reorder-admin__position" data-project-position>{{ forloop.counter }}</span>
+              <button
+                type="button"
+                class="project-reorder-admin__handle"
+                data-project-drag-handle
+                draggable="true"
+                aria-label="{% blocktranslate with title=project.title %}Drag {{ title }}{% endblocktranslate %}"
+                title="{% translate 'Drag to reorder' %}"
+              >⋮⋮</button>
+              <span class="project-reorder-admin__details">
+                <strong>{{ project.title }}</strong>
+                <span class="project-reorder-admin__badges">
+                  {% if project.is_published %}
+                    <span class="project-reorder-admin__badge project-reorder-admin__badge--published">{% translate "Published" %}</span>
+                  {% else %}
+                    <span class="project-reorder-admin__badge project-reorder-admin__badge--draft">{% translate "Draft" %}</span>
+                  {% endif %}
+                  {% if project.is_featured %}
+                    <span class="project-reorder-admin__badge project-reorder-admin__badge--featured">{% translate "Featured" %}</span>
+                  {% endif %}
+                </span>
+              </span>
+              <span class="project-reorder-admin__controls">
+                <button
+                  type="button"
+                  class="button"
+                  data-project-move="up"
+                  aria-label="{% blocktranslate with title=project.title %}Move {{ title }} up{% endblocktranslate %}"
+                  {% if forloop.first %}disabled{% endif %}
+                >{% translate "Move up" %}</button>
+                <button
+                  type="button"
+                  class="button"
+                  data-project-move="down"
+                  aria-label="{% blocktranslate with title=project.title %}Move {{ title }} down{% endblocktranslate %}"
+                  {% if forloop.last %}disabled{% endif %}
+                >{% translate "Move down" %}</button>
+              </span>
+            </li>
+          {% endfor %}
+        </ol>
+
+        <p class="project-reorder-admin__announcement" data-project-reorder-announcement aria-live="polite"></p>
+        <div class="submit-row">
+          <input type="submit" class="default" value="{% translate 'Save order' %}" data-project-reorder-save disabled>
+          <a href="{{ project_changelist_url }}" class="closelink">{% translate "Cancel" %}</a>
+        </div>
+      </form>
+    {% else %}
+      <p>{% translate "There are no projects to reorder." %}</p>
+      <p><a href="{{ project_changelist_url }}">{% translate "Back to projects" %}</a></p>
+    {% endif %}
+  </div>
+{% endblock %}

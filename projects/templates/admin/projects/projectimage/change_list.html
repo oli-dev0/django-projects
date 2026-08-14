@@ -1,0 +1,9 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block result_list %}
+  {% if not cl.result_count %}
+    <p class="project-image-admin__empty">{% translate "No project images yet." %}</p>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

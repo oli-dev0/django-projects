@@ -1,0 +1,52 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  {{ media.css }}
+{% endblock %}
+
+{% block object-tools-items %}
+  {% if original and project_image_can_change %}
+    <li><a href="{{ project_image_replace_url }}">{% translate "Replace image" %}</a></li>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+
+{% block after_field_sets %}
+  {{ block.super }}
+  {% if original %}
+    <section class="project-image-admin__details" aria-labelledby="project-image-renditions-title">
+      <h2 id="project-image-renditions-title">{% translate "Project image details" %}</h2>
+      <dl>
+        <div><dt>{% translate "Readiness" %}</dt><dd>{{ original.get_processing_status_display }}{% if original.processing_status == "ready" and not original.has_publication_files %} ({% translate "Unavailable" %}){% endif %}</dd></div>
+        <div><dt>{% translate "Dimensions" %}</dt><dd>{% if original.width and original.height %}{{ original.width }} × {{ original.height }}{% else %}{% translate "Not available" %}{% endif %}</dd></div>
+      </dl>
+      <h3>{% translate "Generated renditions" %}</h3>
+      <ul class="project-image-admin__renditions">
+        {% for rendition in project_image_rendition_rows %}
+          <li>
+            <span>{{ rendition.label }}</span>
+            {% if rendition.url %}<a href="{{ rendition.url }}">{{ rendition.name }}</a>{% elif rendition.name %}<code>{{ rendition.name }}</code> <span>({% translate "Unavailable" %})</span>{% else %}{% translate "Not generated" %}{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="project-image-admin__usage" aria-labelledby="project-image-usage-title">
+      <h2 id="project-image-usage-title">{% translate "Project usage" %}</h2>
+      {% if project_image_published_usage %}
+        <p class="project-image-admin__warning" role="alert">{% translate "This image is used by a published Project. Review the usage before replacing or deleting it." %}</p>
+      {% endif %}
+      {% if project_image_usage_rows %}
+        <ul>
+          {% for row in project_image_usage_rows %}
+            <li><a href="{{ row.url }}">{{ row.project.title }}</a><span>{{ row.role }}{% if row.position is not None %} · {% translate "order" %} {{ row.position }}{% endif %}</span>{% if row.published %}<strong>{% translate "Published" %}</strong>{% else %}<span>{% translate "Draft" %}</span>{% endif %}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>{% translate "This image is not currently used by any Projects." %}</p>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

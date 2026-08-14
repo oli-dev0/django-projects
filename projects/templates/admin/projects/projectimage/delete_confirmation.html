@@ -1,0 +1,21 @@
+{% extends "admin/delete_confirmation.html" %}
+{% load i18n %}
+
+{% block content %}
+  {% if project_image_published_usage %}
+    <p class="project-image-admin__warning" role="alert">{% translate "This image is used by a published Project. Deleting it will detach every cover and gallery reference listed below." %}</p>
+  {% endif %}
+  <section class="project-image-admin__usage" aria-labelledby="project-image-delete-usage-title">
+    <h2 id="project-image-delete-usage-title">{% translate "Project usage" %}</h2>
+    {% if project_image_usage_rows %}
+      <ul>
+        {% for row in project_image_usage_rows %}
+          <li><a href="{{ row.url }}">{{ row.project.title }}</a><span>{{ row.role }}{% if row.position is not None %} · {% translate "order" %} {{ row.position }}{% endif %}</span>{% if row.published %}<strong>{% translate "Published" %}</strong>{% else %}<span>{% translate "Draft" %}</span>{% endif %}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>{% translate "This image is not currently used by any Projects." %}</p>
+    {% endif %}
+  </section>
+  {{ block.super }}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  {{ media.css }}
+{% endblock %}
+
+{% block object-tools-items %}
+  {% if original and perms.projects.view_project or original and perms.projects.change_project %}
+    <li><a href="{{ project_preview_url }}">{% translate "Preview project" %}</a></li>
+  {% endif %}
+  {% if original and perms.projects.change_project %}
+    {% if not original.is_featured %}
+      <li><a href="{{ project_feature_url }}">{% translate "Feature on homepage" %}</a></li>
+    {% else %}
+      <li>
+        <form
+          method="post"
+          action="{{ project_unfeature_url }}"
+          class="project-feature-admin__unfeature-form"
+        >
+          {% csrf_token %}
+          <button type="submit" class="project-feature-admin__unfeature">
+            {% translate "Remove from homepage" %}
+          </button>
+        </form>
+      </li>
+    {% endif %}
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

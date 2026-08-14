@@ -1,0 +1,53 @@
+{% extends "admin/projects/base.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  {{ media.css }}
+{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
+    &rsaquo; <a href="{{ image_changelist_url }}">{% translate "Project images" %}</a>
+    &rsaquo; <a href="{{ image_change_url }}">{{ image.name }}</a>
+    &rsaquo; {% translate "Replace" %}
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="project-image-admin project-image-admin--action">
+    <h1>{% translate "Replace project image" %}</h1>
+    <p>{% translate "The existing media record and its cover/gallery references will be preserved if the replacement succeeds." %}</p>
+    {% if image_url %}
+      <figure class="project-image-admin__current-preview">
+        <img src="{{ image_url }}" alt="">
+        <figcaption>{% translate "Current image" %}</figcaption>
+      </figure>
+    {% endif %}
+    {% if published_usage %}
+      <p class="project-image-admin__warning" role="alert">{% translate "This image is currently used by a published Project. The current image will remain live until the replacement is processed successfully." %}</p>
+    {% endif %}
+
+    <section class="project-image-admin__usage" aria-labelledby="project-image-action-usage-title">
+      <h2 id="project-image-action-usage-title">{% translate "Current Project usage" %}</h2>
+      {% if usage_rows %}
+        <ul>
+          {% for row in usage_rows %}
+            <li><a href="{{ row.url }}">{{ row.project.title }}</a><span>{{ row.role }}{% if row.position is not None %} · {% translate "order" %} {{ row.position }}{% endif %}</span>{% if row.published %}<strong>{% translate "Published" %}</strong>{% else %}<span>{% translate "Draft" %}</span>{% endif %}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>{% translate "This image is not currently used by any Projects." %}</p>
+      {% endif %}
+    </section>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {{ form.as_p }}
+      <button type="submit" class="button">{% translate "Replace image" %}</button>
+      <a class="button button--secondary" href="{{ image_change_url }}">{% translate "Cancel" %}</a>
+    </form>
+  </div>
+{% endblock %}

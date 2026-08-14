@@ -1,0 +1,118 @@
+{% extends "admin/projects/base.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  {{ media.css }}
+{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
+    &rsaquo; <a href="{{ image_changelist_url }}">{% translate "Project images" %}</a>
+    &rsaquo; {% translate "Add" %}
+  </div>
+{% endblock %}
+
+{% block content %}
+  {% translate "The image could not be processed. Replace it from its image page after saving this batch." as processing_error_fallback %}
+  <div class="project-image-admin project-image-admin--batch">
+    <h1>{% translate "Add project images" %}</h1>
+
+    {% if upload_form %}
+      <p>{% translate "Choose one Project and upload all images that belong to it." %}</p>
+      <form method="post" enctype="multipart/form-data" class="project-image-batch__upload-form">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="upload">
+        {{ upload_form.non_field_errors }}
+        <fieldset class="module aligned">
+          <h2>{% translate "Upload files" %}</h2>
+          {% for field in upload_form %}
+            <div class="form-row{% if field.errors %} errors{% endif %}">
+              <div>
+                {{ field.label_tag }}
+                {% if field.help_text %}<div class="help" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</div>{% endif %}
+                {{ field.errors }}
+                {{ field }}
+              </div>
+            </div>
+          {% endfor %}
+        </fieldset>
+        <div class="submit-row">
+          <button type="submit" class="default">{% translate "Upload images" %}</button>
+          <a href="{{ image_changelist_url }}" class="closelink">{% translate "Cancel" %}</a>
+        </div>
+      </form>
+    {% else %}
+      <p>
+        {% blocktranslate with project=batch_images.0.project.title %}All images were added to {{ project }}. Complete their metadata below.{% endblocktranslate %}
+      </p>
+      <div class="project-image-batch__summary" role="status">
+        <span>
+          {% blocktranslate count count=batch_ready_count %}{{ count }} image ready{% plural %}{{ count }} images ready{% endblocktranslate %}
+        </span>
+        {% if batch_failed_count %}
+          <span class="project-image-batch__failed-count">
+            {% blocktranslate count count=batch_failed_count %}{{ count }} image needs replacement{% plural %}{{ count }} images need replacement{% endblocktranslate %}
+          </span>
+        {% endif %}
+      </div>
+
+      <form method="post" class="project-image-batch__metadata-form">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="metadata">
+        <input type="hidden" name="batch_token" value="{{ batch_token }}">
+        {{ batch_formset.management_form }}
+        {{ batch_formset.non_form_errors }}
+
+        <div class="project-image-batch__list">
+          {% for row in batch_rows %}
+            <article class="project-image-batch__item">
+              <div class="project-image-batch__preview">
+                {% if row.preview_url %}
+                  <img src="{{ row.preview_url }}" alt="">
+                {% else %}
+                  <span class="project-image-admin__placeholder">{% translate "Preview unavailable" %}</span>
+                {% endif %}
+              </div>
+
+              <div class="project-image-batch__fields">
+                <header class="project-image-batch__item-header">
+                  <h2>{{ row.image.name }}</h2>
+                  <span>{{ row.image.get_processing_status_display }}</span>
+                </header>
+                {% if row.image.processing_status == "failed" %}
+                  <p class="project-image-admin__warning" role="alert">
+                    {{ row.image.processing_error|default:processing_error_fallback }}
+                  </p>
+                {% endif %}
+
+                {{ row.form.non_field_errors }}
+                {% for field in row.form %}
+                  {% if field.name == "is_decorative" %}
+                    <div class="project-image-batch__field project-image-batch__field--checkbox{% if field.errors %} errors{% endif %}">
+                      {{ field }}
+                      {{ field.label_tag }}
+                      {{ field.errors }}
+                    </div>
+                  {% else %}
+                    <div class="project-image-batch__field{% if field.errors %} errors{% endif %}">
+                      {{ field.label_tag }}
+                      {{ field.errors }}
+                      {{ field }}
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+
+        <div class="submit-row">
+          <button type="submit" class="default">{% translate "Save image details" %}</button>
+          <a href="{{ image_changelist_url }}" class="closelink">{% translate "Finish later" %}</a>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+{% endblock %}

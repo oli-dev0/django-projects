@@ -1,0 +1,11 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  {% if has_project_reorder_permission %}
+    <li>
+      <a href="{{ project_reorder_url }}">{% translate "Reorder projects" %}</a>
+    </li>
+  {% endif %}
+{% endblock %}
