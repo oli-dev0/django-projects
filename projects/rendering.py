@@ -252,6 +252,14 @@ def build_technology_data(project):
     ]
 
 
+def _gallery_teaser_sizes(column_count):
+    return {
+        1: '(min-width: 761px) 760px, 100vw',
+        2: '(min-width: 761px) 376px, 50vw',
+        3: '(min-width: 761px) 248px, 33vw',
+    }[column_count]
+
+
 def build_project_presentation(
     project,
     *,
@@ -277,6 +285,11 @@ def build_project_presentation(
 
     available_gallery = [item for item in gallery_items if item['available']]
     unavailable_gallery = [item for item in gallery_items if not item['available']]
+    gallery_column_count = min(len(available_gallery), 3)
+    if gallery_column_count:
+        gallery_sizes = _gallery_teaser_sizes(gallery_column_count)
+        for item in available_gallery:
+            item['image']['sizes'] = gallery_sizes
     try:
         body_html = render_feature_markdown(project.body)
     except FeatureMarkdownRenderError:

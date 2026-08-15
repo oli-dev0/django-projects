@@ -20,7 +20,8 @@ Focused coverage is represented by the included `tests/` directory:
   reads, eager loading, preview reads, shared Project order, draft filtering,
   and gallery order.
 - `test_rendering.py`: Markdown sanitization, technology ordering, media
-  availability, real `srcset` widths, social URLs, and JSON-LD escaping.
+  availability, real `srcset` widths, gallery teaser `sizes`, social URLs, and
+  JSON-LD escaping.
 - `test_views.py`: public visibility, category metadata and filtering, canonical
   search/technology query state, active-filter removal links, English category
   copy, category prompt navigation, technology icon and tooltip rendering on

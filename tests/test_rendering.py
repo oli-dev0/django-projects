@@ -88,6 +88,16 @@ class ProjectRenderingTests(TestCase):
                 image=image,
                 position=4,
             )
+            for position in (5, 6):
+                gallery_image = ProjectImage.objects.create(
+                    project=project,
+                    name=f'Gallery {position}',
+                    original=image_upload(name=f'gallery-{position}.png'),
+                    alt_text=f'Gallery image {position}',
+                )
+                process_image(gallery_image)
+                gallery_image.refresh_from_db()
+                ProjectGalleryImage.objects.create(project=project, image=gallery_image, position=position)
 
             presentation = build_project_presentation(project, canonical_url='https://example.com/projects/rendering-project/')
 
@@ -98,15 +108,18 @@ class ProjectRenderingTests(TestCase):
             self.assertEqual(presentation['available_gallery'][0]['position'], gallery_item.position)
             self.assertEqual(presentation['cover']['width'], 1600)
             self.assertIn('480w', presentation['cover']['srcset'])
+            self.assertEqual(presentation['available_gallery'][0]['image']['sizes'], '(min-width: 761px) 248px, 33vw')
             self.assertTrue(presentation['cover']['social_url'].startswith('http://example.com/'))
 
-            image.rendition_960.storage.delete(image.rendition_960.name)
+            first_gallery_position = gallery_item.position
+            for gallery_row in project.gallery_items.all():
+                gallery_row.image.rendition_960.storage.delete(gallery_row.image.rendition_960.name)
             unavailable = build_project_presentation(project)
 
             self.assertIsNone(unavailable['cover'])
             self.assertTrue(unavailable['cover_unavailable'])
             self.assertEqual(unavailable['available_gallery'], [])
-            self.assertEqual(unavailable['unavailable_gallery'][0]['position'], gallery_item.position)
+            self.assertEqual(unavailable['unavailable_gallery'][0]['position'], first_gallery_position)
             self.assertNotIn('src="', str(unavailable['unavailable_gallery']))
 
     def test_responsive_image_descriptors_use_actual_unique_widths(self):
