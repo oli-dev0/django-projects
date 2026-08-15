@@ -1,8 +1,10 @@
 # Projects
 
 The `apps.projects` app owns portfolio content, project media, editorial
-validation, previews, and featured-project state. A host-owned frontend app
-provides the public templates, styling, and progressive enhancement.
+validation, previews, and featured-project state. The included
+`site_frontend` app provides a reference implementation of the public
+templates, styling, static assets, and progressive enhancement. A consuming
+site can use it directly or replace it with its own frontend.
 
 ## Current surface
 
@@ -28,11 +30,17 @@ detaches their cover and gallery uses before cleanup. Image processing is
 synchronous and uses the configured Django media storage.
 
 The public list keeps search and filter controls above the results. Category
-and technology changes apply immediately through a host-provided JavaScript
+and technology changes apply immediately through the included JavaScript
 enhancement, and active values can be removed individually or cleared together.
-The server-rendered forms and links remain the authoritative fallback.
+The server-rendered forms and links remain the authoritative fallback. Controls
+that only work with JavaScript stay hidden until their scripts initialize.
 
-The host frontend can also enhance multi-image detail galleries with a dialog.
+The reference frontend can also enhance multi-image detail galleries with a dialog.
 Visitors can use the compact controls, Left and Right keyboard keys, or
 horizontal touch swipes to move between images, while the native links remain
 available without JavaScript.
+
+Frontend fonts and icons use the `site_frontend/` static namespace. References
+inside the stylesheet are relative, so a host can use a non-default static URL
+or asset domain. Public list pages emit absolute canonical and social-image
+URLs; detail pages use their Project-specific social metadata.

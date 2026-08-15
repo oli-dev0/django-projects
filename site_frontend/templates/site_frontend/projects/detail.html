@@ -1,0 +1,207 @@
+{% extends "site_frontend/base.html" %}
+{% load static %}
+{% block title %}{{ project_presentation.title }} | Projects{% endblock %}
+{% block meta_description %}{{ project_presentation.description }}{% endblock %}
+{% block canonical_url %}{{ project_presentation.canonical_url }}{% endblock %}
+{% block og_title %}{{ project_presentation.title }} | Projects{% endblock %}
+{% block og_description %}{{ project_presentation.description }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_url %}{{ project_presentation.canonical_url }}{% endblock %}
+{% block og_image %}{{ project_presentation.social_image_url }}{% endblock %}
+{% block og_image_alt %}{{ project_presentation.social_image_alt }}{% endblock %}
+{% block twitter_title %}{{ project_presentation.title }} | Projects{% endblock %}
+{% block twitter_description %}{{ project_presentation.description }}{% endblock %}
+{% block twitter_image %}{{ project_presentation.social_image_url }}{% endblock %}
+{% block twitter_image_alt %}{{ project_presentation.social_image_alt }}{% endblock %}
+{% block og_image_metadata %}
+  {% if project_presentation.social_image_width %}
+    <meta property="og:image:width" content="{{ project_presentation.social_image_width }}">
+    <meta property="og:image:height" content="{{ project_presentation.social_image_height }}">
+    <meta property="og:image:type" content="{{ project_presentation.social_image_type }}">
+  {% endif %}
+{% endblock %}
+{% block extra_head %}
+  {{ block.super }}
+  {% if is_preview %}<meta name="robots" content="noindex, nofollow, noarchive">{% endif %}
+{% endblock %}
+{% block structured_data %}<script type="application/ld+json">{{ project_presentation.structured_data_json }}</script>{% endblock %}
+{% block extra_scripts %}<script src="{% static 'site_frontend/js/project-detail.js' %}" defer></script>{% endblock %}
+{% block content %}
+  <article class="page project-detail">
+    <div class="prompt">projects <span>~ %</span> <span class="prompt__command">cat <a href="{% url 'personal:projects' %}">projects/</a>{{ project.slug }}.md</span></div>
+    <h1>{{ project.title }}</h1>
+    <p class="lede">{{ project.summary }}</p>
+
+    {% if project_presentation.cover %}
+      <img class="project-cover"
+           src="{{ project_presentation.cover.src }}"
+           srcset="{{ project_presentation.cover.srcset }}"
+           sizes="{{ project_presentation.cover.sizes }}"
+           width="{{ project_presentation.cover.width }}"
+           height="{{ project_presentation.cover.height }}"
+           alt="{{ project_presentation.cover.alt }}"
+           loading="{{ project_presentation.cover.loading }}"
+           fetchpriority="high">
+    {% elif project_presentation.cover_unavailable %}
+      <p class="project-media-unavailable">Image unavailable.</p>
+    {% endif %}
+
+    {% if project_presentation.body_html %}<div class="prose">{{ project_presentation.body_html }}</div>{% endif %}
+
+    {% if project_presentation.unavailable_gallery %}
+      <p class="project-media-unavailable">Image unavailable.</p>
+    {% endif %}
+
+    {% with gallery_count=project_presentation.available_gallery|length %}
+      {% if gallery_count %}
+        <section class="project-gallery" data-project-gallery aria-labelledby="project-gallery-title">
+          <div class="project-gallery__heading">
+            <div>
+              <h2 id="project-gallery-title">{{ project.title }} gallery</h2>
+              {% if project_presentation.gallery_caption %}
+                <p class="project-gallery__caption" data-gallery-caption>{{ project_presentation.gallery_caption }}</p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="project-gallery__teaser project-gallery__teaser--{{ gallery_count }}">
+            {% for item in project_presentation.available_gallery %}
+              {% if forloop.counter <= 3 %}
+                <figure class="project-gallery__figure">
+                  <a class="project-gallery__link"
+                     data-gallery-trigger
+                     data-gallery-index="{{ forloop.counter0 }}"
+                     href="{{ item.image.lightbox_url }}"
+                     aria-label="Open gallery, image {{ forloop.counter }} of {{ gallery_count }}">
+                    <img src="{{ item.image.src }}"
+                         srcset="{{ item.image.srcset }}"
+                         sizes="{{ item.image.sizes }}"
+                         width="{{ item.image.width }}"
+                         height="{{ item.image.height }}"
+                         alt="{{ item.image.alt }}"
+                         loading="{{ item.image.loading }}">
+                  </a>
+                </figure>
+              {% endif %}
+            {% endfor %}
+          </div>
+          {% if gallery_count > 1 %}
+            <details class="project-gallery__fallback" data-gallery-fallback>
+              <summary data-gallery-trigger data-gallery-index="0">
+                Open gallery <span aria-hidden="true">·</span> <span class="project-gallery__count">{{ gallery_count }} images</span>
+              </summary>
+              <ul>
+                {% for item in project_presentation.available_gallery %}
+                  <li><a href="{{ item.image.lightbox_url }}">Open image {{ forloop.counter }} of {{ gallery_count }}</a></li>
+                {% endfor %}
+              </ul>
+            </details>
+          {% endif %}
+
+          {% if gallery_count > 1 %}
+            <dialog class="project-gallery-dialog"
+                    data-gallery-dialog
+                    aria-labelledby="project-gallery-dialog-title">
+              <div class="project-dialog__panel">
+                <div class="project-dialog__header">
+                  <div><h2 id="project-gallery-dialog-title">{{ project.title }} gallery</h2></div>
+                  <button class="project-dialog__close"
+                          type="button"
+                          data-gallery-close
+                          aria-label="Close">Close</button>
+                </div>
+                <div class="project-gallery-dialog__slides" data-gallery-slides>
+                  <div class="project-gallery-dialog__controls">
+                    <button type="button" data-gallery-previous aria-label="Previous image"><span aria-hidden="true">←</span></button>
+                    <p class="project-gallery-dialog__status" data-gallery-status aria-live="polite"></p>
+                    <button type="button" data-gallery-next aria-label="Next image"><span aria-hidden="true">→</span></button>
+                  </div>
+                  {% for item in project_presentation.available_gallery %}
+                    <figure data-gallery-slide data-gallery-index="{{ forloop.counter0 }}" hidden>
+                      <img src="{{ item.image.lightbox_url }}"
+                           width="{{ item.image.width }}"
+                           height="{{ item.image.height }}"
+                           alt="{{ item.image.alt }}"
+                           loading="lazy">
+                      {% if item.image.alt %}<figcaption class="project-gallery-dialog__alt-text">{{ item.image.alt }}</figcaption>{% endif %}
+                    </figure>
+                  {% endfor %}
+                </div>
+              </div>
+            </dialog>
+          {% endif %}
+        </section>
+      {% endif %}
+    {% endwith %}
+
+    <section class="project-information" aria-labelledby="project-information-title">
+      <h2 id="project-information-title">Project information</h2>
+      <dl class="project-information__list">
+        <div>
+          <dt>Category</dt>
+          <dd><a href="{% url 'personal:projects-category' category=project.category %}">{{ project.get_category_display }}</a></dd>
+        </div>
+      </dl>
+      {% if project_presentation.technologies %}
+        <h3>Built with</h3>
+        <ul class="project-technologies__list">
+          {% for technology in project_presentation.technologies %}
+            <li>
+              {% if technology.key == 'htmx' %}
+                <img src="{% static 'site_frontend/img/icons/htmx-dark.svg' %}"
+                     data-theme-dark-src="{% static 'site_frontend/img/icons/htmx-dark.svg' %}"
+                     data-theme-light-src="{{ technology.icon_url }}"
+                     data-technology-key="{{ technology.key }}"
+                     alt=""
+                     aria-hidden="true"
+                     width="24"
+                     height="24">
+              {% else %}
+                <img src="{{ technology.icon_url }}"
+                     data-technology-key="{{ technology.key }}"
+                     alt=""
+                     aria-hidden="true"
+                     width="24"
+                     height="24">
+              {% endif %}
+              <span>{{ technology.label }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </section>
+
+    {% if project_presentation.feature_html %}
+      <section class="project-features" aria-labelledby="project-features-title">
+        <details data-feature-details>
+          <summary id="project-features-title">View full feature list</summary>
+          <div class="prose" data-feature-content>{{ project_presentation.feature_html }}</div>
+        </details>
+        <dialog class="project-feature-dialog"
+                data-feature-dialog
+                aria-labelledby="project-feature-dialog-title">
+          <div class="project-dialog__panel">
+            <div class="project-dialog__header">
+              <h2 id="project-feature-dialog-title">Full feature list</h2>
+              <button class="project-dialog__close"
+                      type="button"
+                      data-feature-close
+                      aria-label="Close">Close</button>
+            </div>
+            <div class="prose" data-feature-dialog-content></div>
+          </div>
+        </dialog>
+      </section>
+    {% endif %}
+
+    {% if project.repo_url or project.live_url %}
+      <div class="actions">
+        {% if project.repo_url %}<a href="{{ project.repo_url }}" target="_blank" rel="noopener noreferrer">Repository ↗</a>{% endif %}
+        {% if project.live_url %}<a href="{{ project.live_url }}" target="_blank" rel="noopener noreferrer">Live project ↗</a>{% endif %}
+      </div>
+    {% endif %}
+
+    <div class="actions project-detail__back">
+      <a href="{% url 'personal:projects' %}"><span aria-hidden="true">←</span> Back to projects</a>
+    </div>
+  </article>
+{% endblock %}

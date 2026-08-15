@@ -60,6 +60,18 @@ class ProjectViewTests(TestCase):
         self.assertTemplateUsed(response, 'site_frontend/projects/list.html')
         self.assertTemplateUsed(response, 'site_frontend/base.html')
         self.assertContains(response, 'No published projects yet.')
+        self.assertContains(
+            response,
+            '<meta property="og:image" '
+            'content="http://example.com/static/site_frontend/img/social-card.png">',
+            html=True,
+        )
+        self.assertContains(
+            response,
+            '<meta name="twitter:image" '
+            'content="http://example.com/static/site_frontend/img/social-card.png">',
+            html=True,
+        )
 
     def test_project_list_shows_category_labels(self):
         self.create_project(category=Project.Category.OPERATIONS)
@@ -79,8 +91,16 @@ class ProjectViewTests(TestCase):
         self.assertContains(response, 'project-row__technologies', html=False)
         self.assertContains(response, 'aria-label="Python"', html=False)
         self.assertContains(response, 'aria-label="Docker"', html=False)
-        self.assertContains(response, static('core/img/icons/stack/python.svg'), html=False)
-        self.assertContains(response, static('core/img/icons/stack/docker.svg'), html=False)
+        self.assertContains(
+            response,
+            static('site_frontend/img/icons/stack/python.svg'),
+            html=False,
+        )
+        self.assertContains(
+            response,
+            static('site_frontend/img/icons/stack/docker.svg'),
+            html=False,
+        )
 
         category_response = self.client.get('/projects/apps/')
         self.assertContains(category_response, 'aria-label="Python"', html=False)
@@ -175,6 +195,8 @@ class ProjectViewTests(TestCase):
                     if path.endswith('/apps/')
                     else 'Projects loaded.',
                 )
+                self.assertContains(response, 'site_frontend/css/site.css', html=False)
+                self.assertContains(response, 'site_frontend/js/site.js', html=False)
                 self.assertContains(response, 'site_frontend/js/project-list', html=False)
                 self.assertEqual(response['Content-Language'], 'en')
 
@@ -387,7 +409,15 @@ class ProjectViewTests(TestCase):
             self.assertContains(response, 'data-gallery-fallback', html=False)
             self.assertNotContains(response, '<noscript>', html=False)
             self.assertContains(response, 'Open image 4 of 4')
-            self.assertEqual(response.content.decode().count('loading="lazy"'), 7)
+            content = response.content.decode()
+            self.assertLess(
+                content.index('project-gallery-dialog__controls'),
+                content.index('data-gallery-slide'),
+            )
+            self.assertContains(response, 'data-gallery-previous', html=False)
+            self.assertContains(response, 'data-gallery-next', html=False)
+            self.assertContains(response, 'site_frontend/js/project-detail', html=False)
+            self.assertEqual(content.count('loading="lazy"'), 7)
 
     def test_unavailable_gallery_media_has_no_broken_target(self):
         with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
@@ -417,8 +447,8 @@ class ProjectViewTests(TestCase):
         self.assertContains(response, 'Python')
         self.assertContains(response, 'Docker')
         self.assertContains(response, 'HTMX')
-        dark_icon_url = static('core/img/icons/htmx-dark.svg')
-        light_icon_url = static('core/img/icons/htmx.svg')
+        dark_icon_url = static('site_frontend/img/icons/htmx-dark.svg')
+        light_icon_url = static('site_frontend/img/icons/htmx.svg')
         self.assertContains(response, f'src="{dark_icon_url}"', html=False)
         self.assertContains(response, f'data-theme-dark-src="{dark_icon_url}"', html=False)
         self.assertContains(response, f'data-theme-light-src="{light_icon_url}"', html=False)

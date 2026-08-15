@@ -26,8 +26,11 @@ Focused coverage is represented by the included `tests/` directory:
   copy, category prompt navigation, technology icon and tooltip rendering on
   the main and category lists, filter-control markup order and status,
   immediate-filter UI contract (no Apply/Cancel actions), media states, native
-  gallery fallback, rendered feature HTML, metadata, preview headers, and
-  permissions.
+  gallery fallback, rendered feature HTML, absolute list social-image metadata,
+  preview headers, and permissions.
+- `test_reference_frontend_assets.py`: required reference templates and scripts,
+  namespaced icon availability, relative stylesheet dependencies,
+  enhancement-only control fallbacks, and gallery navigation source behavior.
 - `test_sitemaps.py`: canonical published entries, populated category entries,
   duplicate-category prevention, and draft exclusion.
 
@@ -46,8 +49,15 @@ The focused filter/view checks can be run with:
 DJANGO_SETTINGS_MODULE=config.settings.local uv run python manage.py test tests.projects.test_views tests.projects.test_filters
 ```
 
+The standalone reference-frontend checks do not require host Django settings:
+
+```bash
+python3 -m unittest tests.test_reference_frontend_assets
+```
+
 The suite uses Django's configured test database and temporary media roots.
 Simultaneous Project ordering writes are outside the single-editor product
 assumption. Browser drag behavior, filter auto-submit and dropdown restoration,
-responsive layout, light/dark filter surfaces, and dialog behavior remain
-manual or environment-specific verification boundaries.
+enhancement-control reveal behavior, responsive layout, light/dark filter
+surfaces, and dialog behavior remain manual or environment-specific
+verification boundaries.

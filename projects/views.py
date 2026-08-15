@@ -155,6 +155,10 @@ def _project_list_response(
             'Filtered projects loaded.' if state.is_active else 'Projects loaded.'
         ),
         'seo_canonical_url': build_site_absolute_url(PRIMARY_SITE, clean_path),
+        'frontend_social_image_url': build_site_absolute_url(
+            PRIMARY_SITE,
+            static('site_frontend/img/social-card.png'),
+        ),
     }
     response = render(
         request,

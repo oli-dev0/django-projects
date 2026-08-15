@@ -1,0 +1,81 @@
+{% extends "site_frontend/base.html" %}
+{% load static %}
+{% block title %}{{ page_title }} | Projects{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block og_title %}{{ page_title }} | Projects{% endblock %}
+{% block og_description %}{{ page_description }}{% endblock %}
+{% block twitter_title %}{{ page_title }} | Projects{% endblock %}
+{% block twitter_description %}{{ page_description }}{% endblock %}
+{% block extra_head %}
+  {{ block.super }}
+  {% if query_filtered %}
+    <meta name="robots" content="noindex,follow">
+  {% elif category and not has_projects %}
+    <meta name="robots" content="noindex,follow">
+  {% endif %}
+{% endblock %}
+{% block extra_scripts %}<script src="{% static 'site_frontend/js/project-list.js' %}" defer></script>{% endblock %}
+{% block content %}
+  <section class="page">
+    <div class="prompt">projects <span>~ %</span> <span class="prompt__command">ls {% if category %}<a href="{% url 'personal:projects' %}">projects/</a>{{ category }}/{% else %}{{ prompt_path }}{% endif %}</span></div>
+    <h1>{{ page_title }}</h1>
+    <p class="lede">{{ page_lede }}</p>
+    {% include "site_frontend/projects/_filters.html" %}
+    <div class="project-filter-results"
+         data-project-filter-results
+         aria-busy="false">
+      <span class="visually-hidden" data-project-filter-status aria-live="polite">{{ results_status }}</span>
+      {% if query_filtered and not has_projects %}
+        <div class="project-list project-list--empty">
+          <div class="project-list__empty">
+            <h2>No projects match these filters</h2>
+            <p>Try removing a filter or clear all filters to see more projects.</p>
+            <a href="{{ clear_filters_url }}">Clear all filters</a>
+          </div>
+        </div>
+      {% else %}
+        <div class="project-list">
+          {% for project in projects %}
+            <a class="project-row" href="{% url 'personal:project-detail' slug=project.slug %}">
+              <span>
+                <span class="project-row__category">{{ project.get_category_display }}</span>
+                <b>{{ project.title }}</b>
+                <small>{{ project.summary }}</small>
+              </span>
+              {% if project.public_technologies %}
+                <span class="project-row__technologies" aria-label="Built with">
+                  {% for technology in project.public_technologies %}
+                    {% if technology.key == 'htmx' %}
+                      <span class="project-row__technology" aria-label="{{ technology.label }}">
+                        <img src="{% static 'site_frontend/img/icons/htmx-dark.svg' %}"
+                             data-theme-dark-src="{% static 'site_frontend/img/icons/htmx-dark.svg' %}"
+                             data-theme-light-src="{{ technology.icon_url }}"
+                             data-technology-key="{{ technology.key }}"
+                             alt=""
+                             aria-hidden="true"
+                             width="16"
+                             height="16">
+                      </span>
+                    {% else %}
+                      <span class="project-row__technology" aria-label="{{ technology.label }}">
+                        <img src="{{ technology.icon_url }}"
+                             data-technology-key="{{ technology.key }}"
+                             alt=""
+                             aria-hidden="true"
+                             width="16"
+                             height="16">
+                      </span>
+                    {% endif %}
+                  {% endfor %}
+                </span>
+              {% endif %}
+              <span aria-hidden="true">↗</span>
+            </a>
+          {% empty %}
+            <p class="empty-state">{{ empty_message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

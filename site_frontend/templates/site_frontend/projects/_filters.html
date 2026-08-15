@@ -1,0 +1,180 @@
+<section class="project-filters{% if filter_active %} project-filters--active{% endif %}"
+         aria-label="Project filters"
+         data-project-filter-root
+         data-project-filter-active="{{ filter_active|yesno:'true,false' }}"
+         data-project-filter-updating="Updating projects...">
+  <div class="project-filters__toolbar">
+    <button class="project-filters__toggle"
+            type="button"
+            hidden
+            id="project-filters-toggle"
+            data-project-filter-toggle
+            aria-controls="project-filter-panel"
+            aria-expanded="true">
+      <span class="project-filters__icon-wrap">
+        <svg class="project-filters__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 5h16l-6.5 7.2V18l-3 1v-6.8L4 5Z"></path>
+        </svg>
+        {% if filter_active %}<span class="project-filters__active-dot"></span>{% endif %}
+        {% if filter_active %}<span class="project-filters__active-count">{{ filter_active_count }}</span>{% endif %}
+      </span>
+      <span>Filters</span>
+      {% if filter_active %}
+        <span class="visually-hidden">{{ filter_active_count }} active filter values</span>
+      {% endif %}
+      <svg class="project-filters__chevron" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m7 9 5 5 5-5"></path>
+      </svg>
+    </button>
+
+    <form class="project-filters__search-form"
+          method="get"
+          action="{{ search_form_action }}"
+          role="search"
+          data-project-search-form>
+      <label class="visually-hidden" for="project-search">Search projects</label>
+      <div class="project-filters__search-control">
+        <button class="project-filters__search-submit"
+                type="submit"
+                aria-label="Search projects">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="10.8" cy="10.8" r="6.3"></circle>
+            <path d="m16 16 4.5 4.5"></path>
+          </svg>
+        </button>
+        <input id="project-search"
+               type="search"
+               name="q"
+               value="{{ filter_state.search_query|default:'' }}"
+               maxlength="200"
+               placeholder="Search">
+        {% for key in filter_state.technology_keys %}
+          <input type="hidden" name="tech" value="{{ key }}">
+        {% endfor %}
+        {% if filter_state.search_query %}
+          <a class="project-filters__search-clear"
+             href="{{ clear_search_url }}"
+             aria-label="Clear search">clear</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <div id="project-filter-panel" class="project-filters__panel" data-project-filter-panel>
+    <form class="project-filters__form"
+          method="get"
+          action="{{ filter_form_action }}"
+          data-project-filter-form>
+      {% if filter_state.search_query %}
+        <input type="hidden" name="q" value="{{ filter_state.search_query }}">
+      {% endif %}
+      <div class="project-filters__controls">
+        <fieldset class="project-filters__dropdown project-filters__dropdown--single"
+                  data-project-filter-dropdown
+                  data-project-filter-group="category">
+          <legend class="visually-hidden">Category</legend>
+          <button class="project-filters__dropdown-toggle"
+                  type="button"
+                  hidden
+                  data-project-dropdown-toggle
+                  aria-controls="project-category-options"
+                  aria-expanded="true">
+            <svg class="project-filters__control-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 5h16l-6.5 7.2V18l-3 1v-6.8L4 5Z"></path>
+            </svg>
+            <span>{{ selected_category_label }}</span>
+            <svg class="project-filters__dropdown-chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m7 9 5 5 5-5"></path>
+            </svg>
+          </button>
+          <div id="project-category-options"
+               class="project-filters__dropdown-panel"
+               data-project-dropdown-panel>
+            <div class="project-filters__options">
+              <label>
+                <input type="radio"
+                       name="category"
+                       value=""
+                       data-project-filter-category
+                       {% if not filter_state.category %}checked{% endif %}>
+                <span>Any category</span>
+              </label>
+              {% for option in filter_options.categories %}
+                <label>
+                  <input type="radio"
+                         name="category"
+                         value="{{ option.value }}"
+                         data-project-filter-category
+                         {% if filter_state.category == option.value %}checked{% endif %}>
+                  <span>{{ option.label }}</span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="project-filters__dropdown project-filters__dropdown--multiple"
+                  data-project-filter-dropdown
+                  data-project-filter-group="technology">
+          <legend class="visually-hidden">Tech stack</legend>
+          <button class="project-filters__dropdown-toggle"
+                  type="button"
+                  hidden
+                  data-project-dropdown-toggle
+                  aria-controls="project-technology-options"
+                  aria-expanded="true">
+            <svg class="project-filters__control-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 4h12v4H6zM4 10h16v4H4zM7 16h10v4H7z"></path>
+            </svg>
+            <span>Tech stack</span>
+            <svg class="project-filters__dropdown-chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m7 9 5 5 5-5"></path>
+            </svg>
+          </button>
+          <div id="project-technology-options"
+               class="project-filters__dropdown-panel"
+               data-project-dropdown-panel>
+            <div class="project-filters__helper-row">
+              <p>Match all selected technologies</p>
+              {% if filter_state.technology_keys %}
+                <a href="{{ clear_technologies_url }}"
+                   class="project-filters__dropdown-clear">Clear</a>
+              {% endif %}
+            </div>
+            <div class="project-filters__options project-filters__options--scroll">
+              {% for option in filter_options.technologies %}
+                <label>
+                  <input type="checkbox"
+                         name="tech"
+                         value="{{ option.value }}"
+                         data-project-filter-technology
+                         {% if option.value in filter_state.technology_keys %}checked{% endif %}>
+                  <span>{{ option.label }}</span>
+                </label>
+              {% empty %}
+                <span class="project-filters__empty-option">No public technologies yet.</span>
+              {% endfor %}
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </form>
+  </div>
+
+  {% if active_filters %}
+    <section class="project-filters__active" aria-labelledby="project-active-filters-title">
+      <h2 id="project-active-filters-title">Active filters</h2>
+      <ul>
+        {% for active_filter in active_filters %}
+          <li>
+            <span>{{ active_filter.dimension }}: {{ active_filter.value }}</span>
+            <a href="{{ active_filter.url }}" aria-label="{{ active_filter.remove_label }}">
+              <span aria-hidden="true">×</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+      <a class="project-filters__clear" href="{{ clear_filters_url }}">Clear all</a>
+    </section>
+  {% endif %}
+</section>
