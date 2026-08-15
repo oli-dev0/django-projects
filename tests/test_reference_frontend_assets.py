@@ -36,9 +36,12 @@ class ReferenceFrontendAssetTests(unittest.TestCase):
 
         for behavior in ('ArrowLeft', 'ArrowRight', 'touchstart', 'touchend'):
             self.assertIn(behavior, detail_script)
-        self.assertIn('min-width:32px', stylesheet)
-        self.assertIn('padding:2px 6px', stylesheet)
-        self.assertIn('font-size:18px', stylesheet)
+        self.assertIn('width:44px', stylesheet)
+        self.assertIn('height:44px', stylesheet)
+        self.assertIn('width:11px', stylesheet)
+        self.assertIn('border-width:0 3px 3px 0', stylesheet)
+        self.assertIn('border-radius:2px', stylesheet)
+        self.assertIn('background:transparent', stylesheet)
         self.assertIn('max-height:calc(100vh - 240px)', stylesheet)
 
     def test_keeps_shared_technology_icon_paths_local(self):
