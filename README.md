@@ -4,9 +4,9 @@ I built this Django app to manage and publish the projects on my website.
 
 It gives me one place in Django Admin to write project pages, upload images, choose the technology stack, and control which projects are public. Visitors can browse the finished pages, search by name, and filter projects by category or technology.
 
-[View the repository](https://github.com/oli-dev0/django-projects).
+[Read more about the project](https://oli-dev0.me/projects/django-projects/).
 
-[Read more about the project and live demo](https://oli-dev0.me/projects/django-projects/).
+[View a live demo](https://oli-dev0.me/projects/).
 
 ## What it includes
 
