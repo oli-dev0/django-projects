@@ -904,6 +904,12 @@ html[data-theme=light] .project-dialog__close:hover,html[data-theme=light] .proj
   margin:0;
   overflow:auto
 }
+.project-feature-dialog .prose strong{
+  color:#f1f4fb
+}
+html[data-theme=light] .project-feature-dialog .prose strong{
+  color:#303b4d
+}
 .project-feature-dialog .prose h1:first-child,.project-feature-dialog .prose h2:first-child,.project-feature-dialog .prose h3:first-child{
   margin-top:0
 }
