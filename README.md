@@ -19,7 +19,7 @@ It gives me one place in Django Admin to write project pages, upload images, cho
 - SEO details such as canonical links, social images, and sitemap entries.
 - Tests for the models, views, Admin tools, images, filters, and publishing rules.
 
-The public pages still work without JavaScript. JavaScript adds small improvements such as automatic filters, gallery dialogs, and drag-and-drop ordering in Django Admin.
+The public pages still work without JavaScript. JavaScript adds small improvements such as automatic filters, gallery dialogs with keyboard and touch navigation, and drag-and-drop ordering in Django Admin.
 
 ## What this repository is
 

@@ -31,3 +31,8 @@ The public list keeps search and filter controls above the results. Category
 and technology changes apply immediately through a host-provided JavaScript
 enhancement, and active values can be removed individually or cleared together.
 The server-rendered forms and links remain the authoritative fallback.
+
+The host frontend can also enhance multi-image detail galleries with a dialog.
+Visitors can use the compact controls, Left and Right keyboard keys, or
+horizontal touch swipes to move between images, while the native links remain
+available without JavaScript.
