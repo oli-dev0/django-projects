@@ -11,8 +11,8 @@ site can use it directly or replace it with its own frontend.
 - Public list: `/projects/`.
 - Public category lists: `/projects/<category>/` for the fixed Project
   categories.
-- Public list search and filters: normalized text search, fixed category
-  selection, and registry-backed technology filters.
+- Public list search and filters: normalized text search, an All-first category
+  navigation bar, and registry-backed technology filters.
 - Public detail: `/projects/<slug>/`.
 - Admin models: Projects and Project images.
 - Public content: published Projects only.
@@ -29,10 +29,11 @@ list. Project images can also be bulk-deleted from the Admin list; the action
 detaches their cover and gallery uses before cleanup. Image processing is
 synchronous and uses the configured Django media storage.
 
-The public list keeps search and filter controls above the results. Category
-and technology changes apply immediately through the included JavaScript
-enhancement, and active values can be removed individually or cleared together.
-The server-rendered forms and links remain the authoritative fallback. Controls
+The public list keeps a compact Filters and Tech stack row above a constrained
+search field, followed by an All-first category navigation bar. Technology
+changes apply immediately through the included JavaScript enhancement, while
+category links preserve the current search and technology query state. The
+server-rendered forms and links remain the authoritative fallback. Controls
 that only work with JavaScript stay hidden until their scripts initialize.
 
 The reference frontend can also enhance multi-image detail galleries with a dialog.

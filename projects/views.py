@@ -66,6 +66,26 @@ def _project_list_url(state):
     return f'{path}?{query_string}' if query_string else path
 
 
+def _project_category_links(state, filter_options):
+    links = [
+        {
+            'label': 'All',
+            'url': _project_list_url(state.without(CATEGORY_PARAMETER)),
+            'selected': state.category is None,
+        },
+    ]
+    for option in filter_options.categories:
+        category_state = replace(state, category=option.value)
+        links.append(
+            {
+                'label': option.label,
+                'url': _project_list_url(category_state),
+                'selected': state.category == option.value,
+            },
+        )
+    return tuple(links)
+
+
 def _resolved_category(request, parsed_state, route_category):
     category_values = request.GET.getlist(CATEGORY_PARAMETER)
     if parsed_state.category:
@@ -119,14 +139,6 @@ def _project_list_response(
 
     clean_path = _project_list_path(route_category)
     query_filtered = bool(state.search_query or state.technology_keys)
-    selected_category_label = next(
-        (
-            option.label
-            for option in filter_options.categories
-            if option.value == state.category
-        ),
-        'Any category',
-    )
     context = {
         'projects': projects,
         'category': route_category,
@@ -138,7 +150,7 @@ def _project_list_response(
         'has_projects': bool(projects),
         'filter_options': filter_options,
         'filter_state': state,
-        'selected_category_label': selected_category_label,
+        'category_links': _project_category_links(state, filter_options),
         'filter_active': state.is_active,
         'filter_active_count': state.active_value_count,
         'active_filters': active_filter_context,

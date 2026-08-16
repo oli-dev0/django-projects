@@ -69,50 +69,6 @@
         <input type="hidden" name="q" value="{{ filter_state.search_query }}">
       {% endif %}
       <div class="project-filters__controls">
-        <fieldset class="project-filters__dropdown project-filters__dropdown--single"
-                  data-project-filter-dropdown
-                  data-project-filter-group="category">
-          <legend class="visually-hidden">Category</legend>
-          <button class="project-filters__dropdown-toggle"
-                  type="button"
-                  hidden
-                  data-project-dropdown-toggle
-                  aria-controls="project-category-options"
-                  aria-expanded="true">
-            <svg class="project-filters__control-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 5h16l-6.5 7.2V18l-3 1v-6.8L4 5Z"></path>
-            </svg>
-            <span>{{ selected_category_label }}</span>
-            <svg class="project-filters__dropdown-chevron" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="m7 9 5 5 5-5"></path>
-            </svg>
-          </button>
-          <div id="project-category-options"
-               class="project-filters__dropdown-panel"
-               data-project-dropdown-panel>
-            <div class="project-filters__options">
-              <label>
-                <input type="radio"
-                       name="category"
-                       value=""
-                       data-project-filter-category
-                       {% if not filter_state.category %}checked{% endif %}>
-                <span>Any category</span>
-              </label>
-              {% for option in filter_options.categories %}
-                <label>
-                  <input type="radio"
-                         name="category"
-                         value="{{ option.value }}"
-                         data-project-filter-category
-                         {% if filter_state.category == option.value %}checked{% endif %}>
-                  <span>{{ option.label }}</span>
-                </label>
-              {% endfor %}
-            </div>
-          </div>
-        </fieldset>
-
         <fieldset class="project-filters__dropdown project-filters__dropdown--multiple"
                   data-project-filter-dropdown
                   data-project-filter-group="technology">

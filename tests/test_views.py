@@ -183,9 +183,12 @@ class ProjectViewTests(TestCase):
                     content.index('data-project-search-form'),
                 )
                 self.assertContains(response, 'maxlength="200"', html=False)
-                self.assertContains(response, 'name="category"', html=False)
+                self.assertNotContains(response, 'name="category"', html=False)
                 self.assertContains(response, 'name="tech"', html=False)
                 self.assertContains(response, 'Match all selected technologies')
+                self.assertContains(response, 'Project category', html=False)
+                self.assertContains(response, 'Show previous project categories', html=False)
+                self.assertContains(response, 'Show more project categories', html=False)
                 self.assertNotContains(response, 'Apply filters')
                 self.assertNotContains(response, 'data-project-filter-cancel', html=False)
                 self.assertContains(response, 'data-project-filter-results', html=False)
@@ -205,10 +208,27 @@ class ProjectViewTests(TestCase):
 
         response = self.client.get('/projects/apps/')
 
-        self.assertContains(response, 'Category: Apps')
-        self.assertContains(response, 'value="apps"', html=False)
+        self.assertContains(response, '<a href="/projects/apps/" aria-current="page">Apps</a>', html=True)
         self.assertContains(response, 'project-filters__active-count', html=False)
         self.assertContains(response, '>1<', html=False)
+
+    def test_category_navigation_preserves_search_and_technology_state(self):
+        self.create_project(technology_stack=['python', 'docker'])
+
+        response = self.client.get(
+            '/projects/apps/?q=tools&tech=python&tech=docker',
+        )
+
+        self.assertContains(
+            response,
+            'href="/projects/?q=tools&amp;tech=python&amp;tech=docker"',
+            html=False,
+        )
+        self.assertContains(
+            response,
+            'href="/projects/themes/?q=tools&amp;tech=python&amp;tech=docker"',
+            html=False,
+        )
 
     def test_filter_query_state_redirects_to_one_clean_representation(self):
         self.create_project(technology_stack=['python', 'docker'])

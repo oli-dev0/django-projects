@@ -24,8 +24,9 @@ Focused coverage is represented by the included `tests/` directory:
   JSON-LD escaping.
 - `test_views.py`: public visibility, category metadata and filtering, canonical
   search/technology query state, active-filter removal links, English category
-  copy, category prompt navigation, technology icon and tooltip rendering on
-  the main and category lists, filter-control markup order and status,
+  copy, category prompt and header navigation, category-link query-state
+  preservation, technology icon and tooltip rendering on the main and category
+  lists, filter-control markup order and status,
   immediate-filter UI contract (no Apply/Cancel actions), media states, native
   gallery fallback, rendered feature HTML, absolute list social-image metadata,
   preview headers, and permissions.
@@ -59,6 +60,6 @@ python3 -m unittest tests.test_reference_frontend_assets
 The suite uses Django's configured test database and temporary media roots.
 Simultaneous Project ordering writes are outside the single-editor product
 assumption. Browser drag behavior, filter auto-submit and dropdown restoration,
-enhancement-control reveal behavior, responsive layout, light/dark filter
-surfaces, and dialog behavior remain manual or environment-specific
-verification boundaries.
+category navigation scrolling, enhancement-control reveal behavior, responsive
+layout, light/dark filter surfaces, and dialog behavior remain manual or
+environment-specific verification boundaries.

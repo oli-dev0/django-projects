@@ -21,6 +21,43 @@
     <h1>{{ page_title }}</h1>
     <p class="lede">{{ page_lede }}</p>
     {% include "site_frontend/projects/_filters.html" %}
+    <nav class="project-category-nav"
+         aria-label="Project category"
+         data-project-category-nav>
+      <div class="project-category-nav__fixed">
+        {% for category_link in category_links %}
+          {% if forloop.first %}
+            <a href="{{ category_link.url }}"{% if category_link.selected %} aria-current="page"{% endif %}>{{ category_link.label }}</a>
+            <span class="project-category-nav__separator" aria-hidden="true"></span>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="project-category-nav__overflow">
+        <button class="project-category-nav__more project-category-nav__more--start"
+                type="button"
+                aria-label="Show previous project categories"
+                data-project-category-previous
+                hidden>
+          <span class="project-category-nav__chevron" aria-hidden="true"></span>
+        </button>
+        <div class="project-category-nav__scroll" data-project-category-scroll>
+          <ul>
+            {% for category_link in category_links %}
+              {% if not forloop.first %}
+                <li><a href="{{ category_link.url }}"{% if category_link.selected %} aria-current="page"{% endif %}>{{ category_link.label }}</a></li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <button class="project-category-nav__more project-category-nav__more--end"
+                type="button"
+                aria-label="Show more project categories"
+                data-project-category-next
+                hidden>
+          <span class="project-category-nav__chevron" aria-hidden="true"></span>
+        </button>
+      </div>
+    </nav>
     <div class="project-filter-results"
          data-project-filter-results
          aria-busy="false">

@@ -1,6 +1,87 @@
 (function () {
   const filterRestoreKey = "project-filter-restore";
 
+  function setupCategoryScroller(root) {
+    const scroller = root.querySelector("[data-project-category-scroll]");
+    const previous = root.querySelector("[data-project-category-previous]");
+    const next = root.querySelector("[data-project-category-next]");
+    const selected = scroller && scroller.querySelector('[aria-current="page"]');
+    const overflowTolerance = 1;
+    let frame;
+
+    if (!scroller || !previous || !next) {
+      return;
+    }
+
+    function updateControls() {
+      const maximumScroll = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+      previous.hidden = scroller.scrollLeft <= overflowTolerance;
+      next.hidden = scroller.scrollLeft >= maximumScroll - overflowTolerance;
+    }
+
+    function scheduleUpdate() {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(updateControls);
+    }
+
+    function revealSelected() {
+      if (!selected) {
+        updateControls();
+        return;
+      }
+
+      const edgeClearance = 44;
+      const scrollerRect = scroller.getBoundingClientRect();
+      const selectedRect = selected.getBoundingClientRect();
+      const visibleStart = scrollerRect.left + edgeClearance;
+      const visibleEnd = scrollerRect.right - edgeClearance;
+      if (selectedRect.left < visibleStart) {
+        scroller.scrollLeft -= visibleStart - selectedRect.left;
+      } else if (selectedRect.right > visibleEnd) {
+        scroller.scrollLeft += selectedRect.right - visibleEnd;
+      }
+      updateControls();
+    }
+
+    function scrollCategories(direction) {
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const items = Array.from(scroller.querySelectorAll("li"));
+      const scrollerRect = scroller.getBoundingClientRect();
+      const edgeClearance = 44;
+      const visibleStart = scrollerRect.left + (previous.hidden ? 0 : edgeClearance);
+      const firstVisibleIndex = items.findIndex(function (item) {
+        return item.getBoundingClientRect().right > visibleStart + overflowTolerance;
+      });
+      const currentIndex = firstVisibleIndex === -1 ? items.length - 1 : firstVisibleIndex;
+      const targetIndex = Math.max(0, Math.min(items.length - 1, currentIndex + direction));
+      const targetRect = items[targetIndex].getBoundingClientRect();
+      const targetStart = targetIndex === 0 ? scrollerRect.left : scrollerRect.left + edgeClearance;
+
+      scroller.scrollBy({
+        left: targetRect.left - targetStart,
+        behavior: reducedMotion ? "auto" : "smooth",
+      });
+    }
+
+    previous.addEventListener("click", function () {
+      scrollCategories(-1);
+    });
+    next.addEventListener("click", function () {
+      scrollCategories(1);
+    });
+    scroller.addEventListener("scroll", scheduleUpdate, { passive: true });
+
+    revealSelected();
+    if (window.ResizeObserver) {
+      new ResizeObserver(revealSelected).observe(scroller);
+    } else {
+      window.addEventListener("resize", revealSelected);
+    }
+    if (document.fonts) {
+      document.fonts.ready.then(revealSelected);
+    }
+  }
+
   function setupProjectFilters(root) {
     const form = root.querySelector("[data-project-filter-form]");
     const panel = root.querySelector("[data-project-filter-panel]");
@@ -24,7 +105,6 @@
         dropdownToggle.hidden = false;
       }
     });
-
     function setPanelOpen(open) {
       panel.hidden = !open;
       toggle.setAttribute("aria-expanded", String(open));
@@ -165,12 +245,10 @@
 
     form.addEventListener("change", function (event) {
       const control = event.target;
-      if (!control.matches("[data-project-filter-category], [data-project-filter-technology]")) {
+      if (!control.matches("[data-project-filter-technology]")) {
         return;
       }
-      if (control.matches("[data-project-filter-technology]")) {
-        rememberTechnologyDropdown();
-      }
+      rememberTechnologyDropdown();
       submitFilterForm();
     });
 
@@ -225,4 +303,5 @@
   }
 
   document.querySelectorAll("[data-project-filter-root]").forEach(setupProjectFilters);
+  document.querySelectorAll("[data-project-category-nav]").forEach(setupCategoryScroller);
 }());

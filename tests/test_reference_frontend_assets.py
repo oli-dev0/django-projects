@@ -100,8 +100,30 @@ class ReferenceFrontendAssetTests(unittest.TestCase):
         )
         self.assertEqual(
             filters_template.count('type="button"\n                  hidden'),
-            2,
+            1,
         )
         self.assertIn('toggle.hidden = false', site_script)
         self.assertIn('toggle.hidden = false', filters_script)
         self.assertIn('dropdownToggle.hidden = false', filters_script)
+
+    def test_project_category_navigation_has_scroll_enhancement(self):
+        list_template = (
+            REFERENCE_ROOT / 'templates/site_frontend/projects/list.html'
+        ).read_text()
+        filters_template = (
+            REFERENCE_ROOT / 'templates/site_frontend/projects/_filters.html'
+        ).read_text()
+        filters_script = (
+            REFERENCE_ROOT / 'static/site_frontend/js/project-list.js'
+        ).read_text()
+        stylesheet = (
+            REFERENCE_ROOT / 'static/site_frontend/css/site.css'
+        ).read_text()
+
+        self.assertIn('data-project-category-nav', list_template)
+        self.assertIn('data-project-category-previous', list_template)
+        self.assertIn('data-project-category-next', list_template)
+        self.assertNotIn('name="category"', filters_template)
+        self.assertIn('setupCategoryScroller', filters_script)
+        self.assertIn('.page .project-category-nav a[aria-current="page"]', stylesheet)
+        self.assertIn('transform:translateY(-2px)', stylesheet)
