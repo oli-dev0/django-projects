@@ -58,6 +58,9 @@ The reference frontend keeps its templates and static assets under the
 `site_frontend` namespace. Its stylesheet uses relative asset paths, so it can
 also work with a custom `STATIC_URL` or an asset host.
 
+The [`examples/host_integration/`](examples/host_integration/) folder provides
+the exact route names expected by that frontend and copyable image settings.
+
 The app uses Pillow for images, `markdown-it-py` and `nh3` for safe Markdown, and `django-otp` for the protected Admin tests.
 
 There are two optional image limits you can change in your Django settings:
